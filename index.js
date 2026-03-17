@@ -26,14 +26,14 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: process.env.FRONTEND_URL || 'https://gorgeous-melomakarona-28abd8.netlify.app',
     methods: ['GET', 'POST'],
   },
 });
 const PORT = process.env.PORT || 3000;
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: process.env.FRONTEND_URL || 'https://gorgeous-melomakarona-28abd8.netlify.app',
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
