@@ -1,42 +1,27 @@
 import pg from 'pg';
 import dotenv from 'dotenv';
+import dns from 'dns';
 
 dotenv.config();
 
+// Force IPv4 DNS resolution globally
+dns.setDefaultResultOrder('ipv4first');
+
 const { Pool } = pg;
 
-// Supabase PostgreSQL connection with optimized pooling
-const pool = new Pool(
-  process.env.DATABASE_URL
-    ? {
-        connectionString: process.env.DATABASE_URL,
-        ssl: {
-          rejectUnauthorized: false,
-        },
-        // Connection pooling settings
-        max: 20, // Maximum number of connections in pool
-        min: 2, // Minimum number of connections to maintain
-        idleTimeoutMillis: 30000, // Close idle connections after 30s
-        connectionTimeoutMillis: 5000, // Timeout for acquiring connection
-        maxUses: 7500, // Recycle connections after 7500 uses
-      }
-    : {
-        host: process.env.DB_HOST,
-        port: parseInt(process.env.DB_PORT || '5432'),
-        database: process.env.DB_NAME,
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        ssl: {
-          rejectUnauthorized: false,
-        },
-        // Connection pooling settings
-        max: 20,
-        min: 2,
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 5000,
-        maxUses: 7500,
-      }
-);
+// Supabase PostgreSQL connection with IPv4 enforcement
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL || `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`,
+  ssl: {
+    rejectUnauthorized: false,
+  },
+  // Connection pooling settings
+  max: 20,
+  min: 2,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
+  maxUses: 7500,
+});
 
 // Connection pool event handlers
 pool.on('connect', () => {
